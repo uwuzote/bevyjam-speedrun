@@ -3,9 +3,9 @@
 mod textures;
 
 use bevy::{prelude::*, window::WindowMode, render::texture::ImageSettings};
-use textures::TextureSheet;
+use textures::{TileSheet, ItemSheet};
 
-const SCALE: f32 = 2.0;
+const SCALE: f32 = 3.0;
 const CLEAR_COLOR: ClearColor = ClearColor(Color::rgb(0.4, 0.0, 0.0));
 
 fn main() {
@@ -21,13 +21,14 @@ fn main() {
            ..Default::default()
         })
         .add_plugins(DefaultPlugins)
-        .init_resource::<TextureSheet>()
+        .init_resource::<TileSheet>()
+        .init_resource::<ItemSheet>()
         .add_startup_system(spawn_camera)
         .add_startup_system(spawn_koci4)
         .run();
 }
 
-fn spawn_koci4(mut cmd: Commands, textures: Res<TextureSheet>) {
+fn spawn_koci4(mut cmd: Commands, textures: Res<TileSheet>) {
     cmd.spawn_bundle(SpriteSheetBundle {
         texture_atlas: textures.0.clone_weak(),
         transform: Transform::from_xyz(0.0, 0.0, 0.0).with_scale(Vec3::new(SCALE, SCALE, 1.0)),
