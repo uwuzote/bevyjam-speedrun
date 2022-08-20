@@ -6,7 +6,7 @@ use bevy::{prelude::*, window::WindowMode, render::texture::ImageSettings};
 use textures::TextureSheet;
 
 const SCALE: f32 = 2.0;
-const CLEAR_COLOR: ClearColor = ClearColor(Color:rgb(0.4, 0.0, 0.0));
+const CLEAR_COLOR: ClearColor = ClearColor(Color::rgb(0.4, 0.0, 0.0));
 
 fn main() {
     #[cfg(not(target_family = "wasm"))]
