@@ -21,6 +21,7 @@ fn main() {
     std::env::set_var("WGPU_BACKEND", "Vulkan");
 
     App::new()
+        // Settings
         .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
         .insert_resource(CLEAR_COLOR)
         .insert_resource(WindowDescriptor {
@@ -28,12 +29,14 @@ fn main() {
            mode: WindowMode::BorderlessFullscreen,
            ..default()
         })
-        .add_state(GameState::Game)
         .add_plugins(DefaultPlugins)
+        // Setup
         .init_resource::<TileSheet>()
         .init_resource::<ItemSheet>()
+        .add_state(GameState::Game)
         .add_startup_system(spawn_camera)
         .add_startup_system(spawn_koci4)
+        // Core
         .add_system(toggle_menu)
         .add_system_set(
             SystemSet::on_update(GameState::Game)
@@ -44,6 +47,17 @@ fn main() {
             SystemSet::on_update(GameState::Items)
             .with_system(quit_game)
         )
+        // UI
+        .add_startup_system(draw_ui)
+        .add_system_set(
+            SystemSet::on_enter(GameState::Items)
+            .with_system(show_ui)
+        )
+        .add_system_set(
+            SystemSet::on_enter(GameState::Game)
+            .with_system(hide_ui)
+        )
+
         .run();
 }
 
@@ -59,6 +73,18 @@ struct ActiveDemon;
 
 fn spawn_camera(mut cmd: Commands) {
     cmd.spawn_bundle(Camera2dBundle::default());
+}
+
+fn draw_ui() {
+    // TODO
+}
+
+fn show_ui() {
+    // TODO
+}
+
+fn hide_ui() {
+    // TODO
 }
 
 fn quit_game(mut exit: EventWriter<AppExit>, keys: Res<Input<KeyCode>>) {
