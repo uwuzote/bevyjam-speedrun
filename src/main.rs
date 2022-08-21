@@ -92,27 +92,27 @@ fn spawn_koci4(mut cmd: Commands, tiles: Res<TileSheet>) {
 fn change_active_demon(
     keys: Res<Input<KeyCode>>,
     mut cmd: Commands,
-    mut query: Query<(Entity, Option<&mut ActiveDemon>), With<Demon>>
+    mut query: Query<(Entity, Option<&ActiveDemon>), With<Demon>>
 ) {
     if !keys.just_pressed(KeyCode::Tab) {
         return;
     };
 
-    // If there's no ActiveDemon we just assume everything is fine...
-    let mut idx = 0usize;
-    let mut sum = 0usize;
+    let mut query_iter = (&mut query).into_iter();
 
-    for (i, (e, mut demon)) in (&mut query).into_iter().enumerate() {
+    while let Some((e, demon)) = query_iter.next() {
         if demon.is_some() {
             cmd.entity(e).remove::<ActiveDemon>();
 
-            idx = i;
+            break;
         };
-
-        sum += 1;
     };
 
-    cmd.entity((&mut query).into_iter().nth((idx + 1) % sum).unwrap().0).insert(ActiveDemon);
+    if let Some((e, _)) = query_iter.next() {
+        cmd.entity(e).insert(ActiveDemon);
+    } else {
+        cmd.entity((&mut query).into_iter().next().unwrap().0).insert(ActiveDemon);
+    };
 }
 
 fn move_active_demon(
