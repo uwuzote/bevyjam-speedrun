@@ -1,7 +1,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-mod textures;
-mod spawn;
+pub mod comps;
+pub mod consts;
+pub mod textures;
+pub mod spawn;
 
 use bevy::{
     prelude::*,
@@ -13,8 +15,15 @@ use bevy::{
 };
 use textures::*;
 use spawn::*;
+use consts::*;
+use comps::*;
 
-const CLEAR_COLOR: ClearColor = ClearColor(Color::rgb(0.4, 0.0, 0.0));
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+enum GameState {
+    // MainMenu,
+    Game,
+    Items,
+}
 
 fn main() {
     #[cfg(not(target_family = "wasm"))]
@@ -61,21 +70,11 @@ fn main() {
         .run();
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-enum GameState {
-    // MainMenu,
-    Game,
-    Items,
-}
-
-#[derive(Component)]
-struct ActiveDemon;
-
 fn spawn_camera(mut cmd: Commands) {
     cmd.spawn_bundle(Camera2dBundle::default());
 }
 
-fn draw_ui() {
+fn draw_ui(mut _cmd: Commands) {
     // TODO
 }
 
@@ -148,19 +147,19 @@ fn move_active_demon(
     let mut active = query.single_mut();
 
     if keys.just_pressed(KeyCode::D) {
-        active.translation += Vec3::new(TILE_OFF, 0.0, 0.0);
+        active.translation += Vec3::new(TILE_SCALE, 0.0, 0.0);
     };
 
     if keys.just_pressed(KeyCode::A) {
-        active.translation += Vec3::new(-TILE_OFF, 0.0, 0.0);
+        active.translation += Vec3::new(-TILE_SCALE, 0.0, 0.0);
     };
 
     if keys.just_pressed(KeyCode::W) {
-        active.translation += Vec3::new(0.0, TILE_OFF, 0.0);
+        active.translation += Vec3::new(0.0, TILE_SCALE, 0.0);
     };
 
     if keys.just_pressed(KeyCode::S) {
-        active.translation += Vec3::new(0.0, -TILE_OFF, 0.0);
+        active.translation += Vec3::new(0.0, -TILE_SCALE, 0.0);
     };
 }
 

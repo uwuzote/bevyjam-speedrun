@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::consts::{TILE_SIZE, ITEM_SIZE};
 
 #[derive(Clone, Eq, PartialEq)]
 pub struct TileSheet(pub Handle<TextureAtlas>);
@@ -28,13 +29,13 @@ fn textures_loader(
 impl FromWorld for TileSheet {
     #[inline]
     fn from_world(world: &mut World) -> Self {
-        TileSheet(textures_loader("tiles.png", [24.0, 24.0], [8, 4], world))
+        TileSheet(textures_loader("tiles.png", [TILE_SIZE, TILE_SIZE], [8, 4], world))
     }
 }
 
 impl FromWorld for ItemSheet {
     #[inline]
     fn from_world(world: &mut World) -> Self {
-        ItemSheet(textures_loader("items.png", [16.0, 16.0], [8, 4], world))
+        ItemSheet(textures_loader("items.png", [ITEM_SIZE, ITEM_SIZE], [8, 4], world))
     }
 }
