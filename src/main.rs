@@ -25,11 +25,17 @@ enum GameState {
     Items,
 }
 
+#[allow(non_snake_case)]
+fn DEBUG_SYSTEM() {
+}
+
 fn main() {
     #[cfg(not(target_family = "wasm"))]
     std::env::set_var("WGPU_BACKEND", "Vulkan");
 
     App::new()
+        .add_system(DEBUG_SYSTEM)
+
         // Settings
         .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
         .insert_resource(CLEAR_COLOR)
@@ -43,10 +49,17 @@ fn main() {
         .init_resource::<TileSheet>()
         .init_resource::<ItemSheet>()
         .add_state(GameState::Game)
+        .add_startup_system_set_to_stage(
+            StartupStage::PreStartup,
+            SystemSet::new()
+            .with_system(spawn_animator)
+            .with_system(draw_ui)
+        )
         .add_startup_system(spawn_camera)
         .add_startup_system(spawn_koci4)
         // Core
         .add_system(toggle_menu)
+        .add_system(animator_animation)
         .add_system_set(
             SystemSet::on_update(GameState::Game)
             .with_system(change_active_demon)
@@ -57,7 +70,7 @@ fn main() {
             .with_system(quit_game)
         )
         // UI
-        .add_startup_system(draw_ui)
+        // .add_startup_system(draw_ui) Moved to PreStartup Stage
         .add_system_set(
             SystemSet::on_enter(GameState::Items)
             .with_system(show_ui)
@@ -70,20 +83,43 @@ fn main() {
         .run();
 }
 
+fn spawn_animator(mut cmd: Commands) {
+    cmd.spawn_bundle(SpatialBundle::visible_identity()).insert(Animator);
+}
+
+fn animator_animation(
+    mut query: Query<&mut Transform, With<Animator>>,
+    time: Res<Time>
+) {
+    let mut anim = query.single_mut();
+    let smth = (time.seconds_since_startup() as f32).sin();
+
+    anim.translation = Vec3::new(0.0, smth * TILE_SCALE / 6.0, 0.0);
+}
+
 fn spawn_camera(mut cmd: Commands) {
     cmd.spawn_bundle(Camera2dBundle::default());
 }
 
-fn draw_ui(mut _cmd: Commands) {
-    // TODO
+fn draw_ui(mut cmd: Commands) {
+    cmd.spawn().insert(ItemsMenu)
+        .insert_bundle(NodeBundle {
+            transform: Transform::identity(),
+            ..default()
+        })
+
+        .with_children(|cmd| {
+            cmd.spawn_bundle(TextBundle::from_section("Hello", default()));
+        })
+    ;
 }
 
-fn show_ui() {
-    // TODO
+fn show_ui(mut query: Query<&mut Visibility, With<ItemsMenu>>) {
+    query.single_mut().is_visible = true;
 }
 
-fn hide_ui() {
-    // TODO
+fn hide_ui(mut query: Query<&mut Visibility, With<ItemsMenu>>) {
+    query.single_mut().is_visible = false;
 }
 
 fn quit_game(mut exit: EventWriter<AppExit>, keys: Res<Input<KeyCode>>) {
@@ -106,9 +142,16 @@ fn toggle_menu(
     };
 }
 
-fn spawn_koci4(mut cmd: Commands, tiles: Res<TileSheet>) {
-    cmd.spawn_bundle(DemonBundle::new([0.0, 0.0], 0, &tiles)).insert(ActiveDemon);
-    cmd.spawn_bundle(DemonBundle::new([-1.0, 0.0], 1, &tiles));
+fn spawn_koci4(
+    mut cmd: Commands,
+    tiles: Res<TileSheet>,
+    anim_query: Query<Entity, With<Animator>>
+) {
+    let e1 = cmd.spawn_bundle(DemonBundle::new([0.0, 0.0], 0, &tiles)).insert(ActiveDemon).id();
+    let e2 = cmd.spawn_bundle(DemonBundle::new([-1.0, 0.0], 1, &tiles)).id();
+
+    cmd.entity(anim_query.single()).push_children(&[e1, e2]);
+
     cmd.spawn_bundle(TileBundle::new([1.0, 1.0], 1, &tiles));
     cmd.spawn_bundle(TileBundle::new([0.0, 1.0], 2, &tiles));
     cmd.spawn_bundle(TileBundle::new([1.0, 0.0], 2, &tiles));

@@ -1,13 +1,16 @@
 use bevy::prelude::*;
 
-#[derive(Default, Component)]
+#[derive(Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Tile;
 
-#[derive(Default, Component)]
+#[derive(Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Demon;
 
-#[derive(Component)]
+#[derive(Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ActiveDemon;
 
-#[derive(Component, Eq, PartialEq)]
+#[derive(Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ItemsMenu;
+
+#[derive(Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Animator;

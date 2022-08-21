@@ -1,3 +1,8 @@
+# Assets:
+Artwork (assets/items.png, assets/tiles.png) created by me.
+
+Font from https://www.dafont.com/game-commands.font 
+
 # License
 Copyright 2022 Shlykov Mikhail, Artem Donsky
 
