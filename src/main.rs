@@ -3,7 +3,14 @@
 mod textures;
 mod spawn;
 
-use bevy::{prelude::*, app::AppExit, window::WindowMode, render::texture::ImageSettings};
+use bevy::{
+    prelude::*,
+    app::AppExit,
+    window::WindowMode,
+    render::{
+        texture::ImageSettings,
+    },
+};
 use textures::*;
 use spawn::*;
 
@@ -30,7 +37,8 @@ fn main() {
         .add_system(toggle_menu)
         .add_system_set(
             SystemSet::on_update(GameState::Game)
-            .with_system(move_active_demon)
+            .with_system(change_active_demon)
+            .with_system(move_active_demon.after(change_active_demon))
         )
         .add_system_set(
             SystemSet::on_update(GameState::Items)
@@ -75,9 +83,36 @@ fn toggle_menu(
 
 fn spawn_koci4(mut cmd: Commands, tiles: Res<TileSheet>) {
     cmd.spawn_bundle(DemonBundle::new([0.0, 0.0], 0, &tiles)).insert(ActiveDemon);
+    cmd.spawn_bundle(DemonBundle::new([-1.0, 0.0], 1, &tiles));
     cmd.spawn_bundle(TileBundle::new([1.0, 1.0], 1, &tiles));
     cmd.spawn_bundle(TileBundle::new([0.0, 1.0], 2, &tiles));
     cmd.spawn_bundle(TileBundle::new([1.0, 0.0], 2, &tiles));
+}
+
+fn change_active_demon(
+    keys: Res<Input<KeyCode>>,
+    mut cmd: Commands,
+    mut query: Query<(Entity, Option<&mut ActiveDemon>), With<Demon>>
+) {
+    if !keys.just_pressed(KeyCode::Tab) {
+        return;
+    };
+
+    // If there's no ActiveDemon we just assume everything is fine...
+    let mut idx = 0usize;
+    let mut sum = 0usize;
+
+    for (i, (e, mut demon)) in (&mut query).into_iter().enumerate() {
+        if demon.is_some() {
+            cmd.entity(e).remove::<ActiveDemon>();
+
+            idx = i;
+        };
+
+        sum += 1;
+    };
+
+    cmd.entity((&mut query).into_iter().nth((idx + 1) % sum).unwrap().0).insert(ActiveDemon);
 }
 
 fn move_active_demon(
