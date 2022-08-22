@@ -5,6 +5,8 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+
 [dependencies]
 
 [dependencies.bevy]
@@ -13,12 +15,12 @@ default-features = false
 features = [
   # Bevy functionality:
   "bevy_asset",         # Assets management
-  "bevy_scene",         # Scenes management
+  # "bevy_scene",         # Scenes management
   # "bevy_gilrs",         # Gamepad input support
-  "bevy_audio",         # Builtin audio
+  # "bevy_audio",         # Builtin audio
   "bevy_winit",         # Window management
   "animation",          # Animation support
-  "x11",                # Linux: Support X11 windowing system
+  # "x11",                # Linux: Support X11 windowing system
   # "filesystem_watcher", # Asset hot-reloading
 
   ## "render" actually just includes:
