@@ -1,7 +1,7 @@
 # Assets:
-Artwork (assets/items.png, assets/tiles.png) created by me.
+Artwork (assets/items.png, assets/tiles.png) created by me in GIMP (GNU Image Manipulation Program).
 
-Font from https://www.dafont.com/game-commands.font 
+Font `Game Commands` from https://www.dafont.com/game-commands.font
 
 # License
 Copyright 2022 Shlykov Mikhail, Artem Donsky

@@ -4,6 +4,7 @@ pub mod comps;
 pub mod consts;
 pub mod textures;
 pub mod spawn;
+pub mod font_loader;
 
 use bevy::{
     prelude::*,
@@ -13,10 +14,13 @@ use bevy::{
         texture::ImageSettings,
     },
 };
-use textures::*;
-use spawn::*;
-use consts::*;
-use comps::*;
+use crate::{
+    comps::*,
+    consts::*,
+    textures::*,
+    spawn::*,
+    font_loader::*
+};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 enum GameState {
@@ -25,8 +29,17 @@ enum GameState {
     Items,
 }
 
+#[derive(Component)]
+struct DEBUG(&'static str);
+
 #[allow(non_snake_case)]
-fn DEBUG_SYSTEM() {
+fn DEBUG_SYSTEM(query: Query<(&DEBUG, &GlobalTransform, &ComputedVisibility)>) {
+    for (DEBUG(name), trans, vis) in &query {
+        eprintln!(
+            "{:?}: vis = {} at {}",
+            name, vis.is_visible(), trans.translation()
+        );
+    }
 }
 
 fn main() {
@@ -48,6 +61,7 @@ fn main() {
         // Setup
         .init_resource::<TileSheet>()
         .init_resource::<ItemSheet>()
+        .init_resource::<FontHandle>()
         .add_state(GameState::Game)
         .add_startup_system_set_to_stage(
             StartupStage::PreStartup,
@@ -101,17 +115,44 @@ fn spawn_camera(mut cmd: Commands) {
     cmd.spawn_bundle(Camera2dBundle::default());
 }
 
-fn draw_ui(mut cmd: Commands) {
-    cmd.spawn().insert(ItemsMenu)
-        .insert_bundle(NodeBundle {
-            transform: Transform::identity(),
+fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
+    cmd.spawn_bundle(NodeBundle {
+        color: Color::NONE.into(),
+        style: Style {
+            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+            justify_content: JustifyContent::SpaceBetween,
             ..default()
-        })
-
+        },
+        ..default()
+    })
+        .insert(ItemsMenu)
         .with_children(|cmd| {
-            cmd.spawn_bundle(TextBundle::from_section("Hello", default()));
-        })
-    ;
+            cmd
+                .spawn_bundle(
+                    // Create a TextBundle that has a Text with a single section.
+                    TextBundle::from_section(
+                        // Accepts a `String` or any type that converts into a `String`, such as `&str`
+                        "PAUSE",
+                        TextStyle {
+                            font: font.0.clone_weak(),
+                            font_size: 60.0,
+                            color: Color::WHITE,
+                        },
+                    ) // Set the alignment of the Text
+                    .with_text_alignment(TextAlignment::TOP_CENTER)
+                    // Set the style of the TextBundle itself.
+                    .with_style(Style {
+                        align_self: AlignSelf::FlexEnd,
+                        position_type: PositionType::Absolute,
+                        position: UiRect {
+                            bottom: Val::Px(5.0),
+                            right: Val::Px(15.0),
+                            ..default()
+                        },
+                        ..default()
+                    }),
+                );
+        });
 }
 
 fn show_ui(mut query: Query<&mut Visibility, With<ItemsMenu>>) {
