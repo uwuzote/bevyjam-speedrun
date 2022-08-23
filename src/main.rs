@@ -1,5 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+pub mod items;
 pub mod comps;
 pub mod consts;
 pub mod textures;
@@ -19,7 +20,8 @@ use crate::{
     consts::*,
     textures::*,
     spawn::*,
-    font_loader::*
+    items::*,
+    font_loader::*,
 };
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -188,14 +190,17 @@ fn spawn_koci4(
     tiles: Res<TileSheet>,
     anim_query: Query<Entity, With<Animator>>
 ) {
-    let e1 = cmd.spawn_bundle(DemonBundle::new([0.0, 0.0], 0, &tiles)).insert(ActiveDemon).id();
-    let e2 = cmd.spawn_bundle(DemonBundle::new([-1.0, 0.0], 1, &tiles)).id();
+    let e1 = cmd.spawn_bundle(demon_sprite_bundle([0.0, 0.0], 0, &tiles))
+                .insert(ActiveDemon)
+                // .insert(DemonInventory::One([Item::Sulfur; 3], Box::new(Storage::empty())))
+                .id();
+    let e2 = cmd.spawn_bundle(demon_sprite_bundle([-1.0, 0.0], 1, &tiles)).id();
 
     cmd.entity(anim_query.single()).push_children(&[e1, e2]);
 
-    cmd.spawn_bundle(TileBundle::new([1.0, 1.0], 1, &tiles));
-    cmd.spawn_bundle(TileBundle::new([0.0, 1.0], 2, &tiles));
-    cmd.spawn_bundle(TileBundle::new([1.0, 0.0], 2, &tiles));
+    cmd.spawn_bundle(tile_sprite_bundle([1.0, 1.0], 1, &tiles));
+    cmd.spawn_bundle(tile_sprite_bundle([0.0, 1.0], 2, &tiles));
+    cmd.spawn_bundle(tile_sprite_bundle([1.0, 0.0], 2, &tiles));
 }
 
 fn change_active_demon(
