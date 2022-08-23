@@ -1,28 +1,14 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-pub mod items;
 pub mod comps;
 pub mod consts;
-pub mod textures;
-pub mod spawn;
 pub mod font_loader;
+pub mod items;
+pub mod spawn;
+pub mod textures;
 
-use bevy::{
-    prelude::*,
-    app::AppExit,
-    window::WindowMode,
-    render::{
-        texture::ImageSettings,
-    },
-};
-use crate::{
-    comps::*,
-    consts::*,
-    textures::*,
-    spawn::*,
-    items::*,
-    font_loader::*,
-};
+use crate::{comps::*, consts::*, font_loader::*, items::*, spawn::*, textures::*};
+use bevy::{app::AppExit, prelude::*, render::texture::ImageSettings, window::WindowMode};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 enum GameState {
@@ -39,7 +25,9 @@ fn DEBUG_SYSTEM(query: Query<(&DEBUG, &GlobalTransform, &ComputedVisibility)>) {
     for (DEBUG(name), trans, vis) in &query {
         eprintln!(
             "{:?}: vis = {} at {}",
-            name, vis.is_visible(), trans.translation()
+            name,
+            vis.is_visible(),
+            trans.translation()
         );
     }
 }
@@ -50,14 +38,13 @@ fn main() {
 
     App::new()
         .add_system(DEBUG_SYSTEM)
-
         // Settings
         .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
         .insert_resource(CLEAR_COLOR)
         .insert_resource(WindowDescriptor {
-           title: "<Koci4 moment>".into(),
-           mode: WindowMode::BorderlessFullscreen,
-           ..default()
+            title: "<Koci4 moment>".into(),
+            mode: WindowMode::BorderlessFullscreen,
+            ..default()
         })
         .add_plugins(DefaultPlugins)
         // Setup
@@ -68,8 +55,8 @@ fn main() {
         .add_startup_system_set_to_stage(
             StartupStage::PreStartup,
             SystemSet::new()
-            .with_system(spawn_animator)
-            .with_system(draw_ui)
+                .with_system(spawn_animator)
+                .with_system(draw_ui),
         )
         .add_startup_system(spawn_camera)
         .add_startup_system(spawn_koci4)
@@ -78,35 +65,23 @@ fn main() {
         .add_system(animator_animation)
         .add_system_set(
             SystemSet::on_update(GameState::Game)
-            .with_system(change_active_demon)
-            .with_system(move_active_demon.after(change_active_demon))
+                .with_system(change_active_demon)
+                .with_system(move_active_demon.after(change_active_demon)),
         )
-        .add_system_set(
-            SystemSet::on_update(GameState::Items)
-            .with_system(quit_game)
-        )
+        .add_system_set(SystemSet::on_update(GameState::Items).with_system(quit_game))
         // UI
         // .add_startup_system(draw_ui) Moved to PreStartup Stage
-        .add_system_set(
-            SystemSet::on_enter(GameState::Items)
-            .with_system(show_ui)
-        )
-        .add_system_set(
-            SystemSet::on_enter(GameState::Game)
-            .with_system(hide_ui)
-        )
-
+        .add_system_set(SystemSet::on_enter(GameState::Items).with_system(show_ui))
+        .add_system_set(SystemSet::on_enter(GameState::Game).with_system(hide_ui))
         .run();
 }
 
 fn spawn_animator(mut cmd: Commands) {
-    cmd.spawn_bundle(SpatialBundle::visible_identity()).insert(Animator);
+    cmd.spawn_bundle(SpatialBundle::visible_identity())
+        .insert(Animator);
 }
 
-fn animator_animation(
-    mut query: Query<&mut Transform, With<Animator>>,
-    time: Res<Time>
-) {
+fn animator_animation(mut query: Query<&mut Transform, With<Animator>>, time: Res<Time>) {
     let mut anim = query.single_mut();
     let smth = (time.seconds_since_startup() as f32).sin();
 
@@ -127,34 +102,33 @@ fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
         },
         ..default()
     })
-        .insert(ItemsMenu)
-        .with_children(|cmd| {
-            cmd
-                .spawn_bundle(
-                    // Create a TextBundle that has a Text with a single section.
-                    TextBundle::from_section(
-                        // Accepts a `String` or any type that converts into a `String`, such as `&str`
-                        "PAUSE",
-                        TextStyle {
-                            font: font.0.clone_weak(),
-                            font_size: 60.0,
-                            color: Color::WHITE,
-                        },
-                    ) // Set the alignment of the Text
-                    .with_text_alignment(TextAlignment::TOP_CENTER)
-                    // Set the style of the TextBundle itself.
-                    .with_style(Style {
-                        align_self: AlignSelf::FlexEnd,
-                        position_type: PositionType::Absolute,
-                        position: UiRect {
-                            bottom: Val::Px(5.0),
-                            right: Val::Px(15.0),
-                            ..default()
-                        },
-                        ..default()
-                    }),
-                );
-        });
+    .insert(ItemsMenu)
+    .with_children(|cmd| {
+        cmd.spawn_bundle(
+            // Create a TextBundle that has a Text with a single section.
+            TextBundle::from_section(
+                // Accepts a `String` or any type that converts into a `String`, such as `&str`
+                "PAUSE",
+                TextStyle {
+                    font: font.0.clone_weak(),
+                    font_size: 60.0,
+                    color: Color::WHITE,
+                },
+            ) // Set the alignment of the Text
+            .with_text_alignment(TextAlignment::TOP_CENTER)
+            // Set the style of the TextBundle itself.
+            .with_style(Style {
+                align_self: AlignSelf::FlexEnd,
+                position_type: PositionType::Absolute,
+                position: UiRect {
+                    bottom: Val::Px(5.0),
+                    right: Val::Px(15.0),
+                    ..default()
+                },
+                ..default()
+            }),
+        );
+    });
 }
 
 fn show_ui(mut query: Query<&mut Visibility, With<ItemsMenu>>) {
@@ -171,14 +145,11 @@ fn quit_game(mut exit: EventWriter<AppExit>, keys: Res<Input<KeyCode>>) {
     }
 }
 
-fn toggle_menu(
-    keys: Res<Input<KeyCode>>,
-    mut state: ResMut<State<GameState>>
-) {
+fn toggle_menu(keys: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>) {
     if keys.just_pressed(KeyCode::E) {
         let newstate = match state.current() {
             GameState::Game => GameState::Items,
-            GameState::Items => GameState::Game
+            GameState::Items => GameState::Game,
         };
 
         state.set(newstate).unwrap();
@@ -188,13 +159,16 @@ fn toggle_menu(
 fn spawn_koci4(
     mut cmd: Commands,
     tiles: Res<TileSheet>,
-    anim_query: Query<Entity, With<Animator>>
+    anim_query: Query<Entity, With<Animator>>,
 ) {
-    let e1 = cmd.spawn_bundle(demon_sprite_bundle([0.0, 0.0], 0, &tiles))
-                .insert(ActiveDemon)
-                // .insert(DemonInventory::One([Item::Sulfur; 3], Box::new(Storage::empty())))
-                .id();
-    let e2 = cmd.spawn_bundle(demon_sprite_bundle([-1.0, 0.0], 1, &tiles)).id();
+    let e1 = cmd
+        .spawn_bundle(demon_sprite_bundle([0.0, 0.0], 0, &tiles))
+        .insert(ActiveDemon)
+        // .insert(DemonInventory::One([Item::Sulfur; 3], Box::new(Storage::empty())))
+        .id();
+    let e2 = cmd
+        .spawn_bundle(demon_sprite_bundle([-1.0, 0.0], 1, &tiles))
+        .id();
 
     cmd.entity(anim_query.single()).push_children(&[e1, e2]);
 
@@ -206,7 +180,7 @@ fn spawn_koci4(
 fn change_active_demon(
     keys: Res<Input<KeyCode>>,
     mut cmd: Commands,
-    mut query: Query<(Entity, Option<&ActiveDemon>), With<Demon>>
+    mut query: Query<(Entity, Option<&ActiveDemon>), With<Demon>>,
 ) {
     if !keys.just_pressed(KeyCode::Tab) {
         return;
@@ -220,18 +194,19 @@ fn change_active_demon(
 
             break;
         };
-    };
+    }
 
     if let Some((e, _)) = query_iter.next() {
         cmd.entity(e).insert(ActiveDemon);
     } else {
-        cmd.entity((&mut query).into_iter().next().unwrap().0).insert(ActiveDemon);
+        cmd.entity((&mut query).into_iter().next().unwrap().0)
+            .insert(ActiveDemon);
     };
 }
 
 fn move_active_demon(
     mut query: Query<&mut Transform, With<ActiveDemon>>,
-    keys: Res<Input<KeyCode>>
+    keys: Res<Input<KeyCode>>,
 ) {
     let mut active = query.single_mut();
 

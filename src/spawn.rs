@@ -1,10 +1,14 @@
-use bevy::prelude::*;
+use crate::comps::Demon;
+use crate::consts::{DEMON_Z_POS, PIXEL_SCALE, TILE_SCALE, TILE_Z_POS};
+use crate::items::DemonInventory;
 use crate::textures::*;
-use crate::comps::{Demon};
-use crate::consts::{TILE_SCALE, PIXEL_SCALE, TILE_Z_POS, DEMON_Z_POS};
-use crate::items::{DemonInventory};
+use bevy::prelude::*;
 
-pub fn tile_sprite_bundle([x, y]: [f32; 2], idx: usize, atlas: &Res<TileSheet>) -> SpriteSheetBundle {
+pub fn tile_sprite_bundle(
+    [x, y]: [f32; 2],
+    idx: usize,
+    atlas: &Res<TileSheet>,
+) -> SpriteSheetBundle {
     SpriteSheetBundle {
         texture_atlas: atlas.0.clone_weak(),
         transform: Transform::identity()
@@ -18,7 +22,11 @@ pub fn tile_sprite_bundle([x, y]: [f32; 2], idx: usize, atlas: &Res<TileSheet>) 
     }
 }
 
-pub fn demon_sprite_bundle([x, y]: [f32; 2], idx: usize, atlas: &Res<TileSheet>) -> SpriteSheetBundle {
+pub fn demon_sprite_bundle(
+    [x, y]: [f32; 2],
+    idx: usize,
+    atlas: &Res<TileSheet>,
+) -> SpriteSheetBundle {
     SpriteSheetBundle {
         texture_atlas: atlas.0.clone_weak(),
         transform: Transform::identity()
@@ -36,18 +44,19 @@ pub fn demon_sprite_bundle([x, y]: [f32; 2], idx: usize, atlas: &Res<TileSheet>)
 pub struct DemonBundle {
     pub demon: Demon,
     pub inventory: DemonInventory,
-    #[bundle] pub sprite: SpriteSheetBundle,
+    #[bundle]
+    pub sprite: SpriteSheetBundle,
 }
 
 impl DemonBundle {
     pub fn new(
         (atlas, idx, coords): (&Res<TileSheet>, usize, [f32; 2]),
-        inventory: DemonInventory
+        inventory: DemonInventory,
     ) -> Self {
         DemonBundle {
             sprite: demon_sprite_bundle(coords, idx, atlas),
             demon: Demon,
-            inventory
+            inventory,
         }
     }
 }

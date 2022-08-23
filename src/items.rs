@@ -1,5 +1,5 @@
-use std::ops::{Index, IndexMut, Deref, DerefMut};
 use bevy::prelude::*;
+use std::ops::{Deref, DerefMut, Index, IndexMut};
 
 pub const MAX_STORAGE: usize = 64;
 
@@ -25,7 +25,7 @@ pub type Cell = (Item, u8);
 #[derive(Clone, Eq, PartialEq)]
 pub struct Storage {
     cap: usize,
-    storage: Box<[Cell; MAX_STORAGE]>
+    storage: Box<[Cell; MAX_STORAGE]>,
 }
 
 impl Storage {
@@ -46,7 +46,7 @@ impl Storage {
 
         Storage {
             cap,
-            storage: Box::new([(Item::Nothing, 0); MAX_STORAGE])
+            storage: Box::new([(Item::Nothing, 0); MAX_STORAGE]),
         }
     }
 
@@ -110,7 +110,7 @@ impl DerefMut for Container {
 pub struct DemonInventory {
     souls: usize,
     pub parts: Storage,
-    pub inventory: Storage
+    pub inventory: Storage,
 }
 
 impl DemonInventory {
@@ -120,7 +120,7 @@ impl DemonInventory {
             2 => Some((5, 12)),
             3 => Some((7, 25)),
             4 => Some((20, 64)),
-            _ => None
+            _ => None,
         }
     }
 
@@ -130,7 +130,7 @@ impl DemonInventory {
         Some(DemonInventory {
             souls,
             parts: Storage::new(prt, parts),
-            inventory: Storage::new(inv, inventory)
+            inventory: Storage::new(inv, inventory),
         })
     }
 
