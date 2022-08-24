@@ -98,6 +98,8 @@ fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
         style: Style {
             size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
             justify_content: JustifyContent::SpaceBetween,
+            align_items: AlignItems::Stretch,
+            flex_direction: FlexDirection::ColumnReverse,
             ..default()
         },
         ..default()
@@ -105,24 +107,40 @@ fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
     .insert(ItemsMenu)
     .with_children(|cmd| {
         cmd.spawn_bundle(
-            // Create a TextBundle that has a Text with a single section.
             TextBundle::from_section(
-                // Accepts a `String` or any type that converts into a `String`, such as `&str`
-                "PAUSE",
+                "INVENTORY",
                 TextStyle {
                     font: font.0.clone_weak(),
-                    font_size: 60.0,
+                    font_size: 40.0,
                     color: Color::WHITE,
                 },
-            ) // Set the alignment of the Text
-            .with_text_alignment(TextAlignment::TOP_CENTER)
-            // Set the style of the TextBundle itself.
+            )
+            // .with_text_alignment(TextAlignment::TOP_CENTER)
             .with_style(Style {
-                align_self: AlignSelf::FlexEnd,
-                position_type: PositionType::Absolute,
+                align_self: AlignSelf::Center,
+                position_type: PositionType::Relative,
                 position: UiRect {
-                    bottom: Val::Px(5.0),
-                    right: Val::Px(15.0),
+                    top: Val::Px(20.0), // 10 = Top
+                    ..default()
+                },
+                ..default()
+            }),
+        );
+
+        cmd.spawn_bundle(
+            TextBundle::from_section(
+                "INVENTARY @ 2",
+                TextStyle {
+                    font: font.0.clone_weak(),
+                    font_size: 30.0,
+                    color: Color::GREEN,
+                },
+            )
+            .with_style(Style {
+                align_self: AlignSelf::Center,
+                position_type: PositionType::Relative,
+                position: UiRect {
+                    bottom: Val::Px(20.0), // 10 = Top
                     ..default()
                 },
                 ..default()
