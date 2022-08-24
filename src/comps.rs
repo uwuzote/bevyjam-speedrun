@@ -16,4 +16,4 @@ pub struct ItemsMenu;
 pub struct Animator;
 
 #[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct DemonInventoryUiNode;
+pub struct StorageInventoryNode;

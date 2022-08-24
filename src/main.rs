@@ -10,6 +10,11 @@ pub mod textures;
 use crate::{comps::*, consts::*, font_loader::*, items::*, spawn::*, textures::*};
 use bevy::{app::AppExit, prelude::*, render::texture::ImageSettings, window::WindowMode};
 
+pub const FULL_SIZE: Size<Val> = Size {
+    width: Val::Percent(100.0),
+    height: Val::Percent(100.0),
+};
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 enum GameState {
     // MainMenu,
@@ -68,9 +73,12 @@ fn main() {
                 .with_system(change_active_demon)
                 .with_system(move_active_demon.after(change_active_demon)),
         )
-        .add_system_set(SystemSet::on_update(GameState::Items).with_system(quit_game))
+        .add_system_set(
+            SystemSet::on_update(GameState::Items)
+                .with_system(quit_game)
+                .with_system(toggle_storage_menu),
+        )
         // UI
-        // .add_startup_system(draw_ui) Moved to PreStartup Stage
         .add_system_set(SystemSet::on_enter(GameState::Items).with_system(show_ui))
         .add_system_set(SystemSet::on_enter(GameState::Game).with_system(hide_ui))
         .run();
@@ -94,10 +102,11 @@ fn spawn_camera(mut cmd: Commands) {
 
 fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
     cmd.spawn_bundle(NodeBundle {
-        color: Color::NONE.into(),
+        color: Color::rgba(0.1, 0.5, 0.2, 0.2).into(),
         style: Style {
-            size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
-            justify_content: JustifyContent::SpaceBetween,
+            size: FULL_SIZE,
+            // justify_content: JustifyContent::SpaceBetween,
+            justify_content: JustifyContent::FlexStart,
             align_items: AlignItems::Stretch,
             flex_direction: FlexDirection::ColumnReverse,
             ..default()
@@ -115,38 +124,130 @@ fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
                     color: Color::WHITE,
                 },
             )
-            // .with_text_alignment(TextAlignment::TOP_CENTER)
             .with_style(Style {
                 align_self: AlignSelf::Center,
-                position_type: PositionType::Relative,
-                position: UiRect {
-                    top: Val::Px(20.0), // 10 = Top
+                margin: UiRect {
+                    top: Val::Px(10.0),
                     ..default()
                 },
                 ..default()
             }),
         );
 
-        cmd.spawn_bundle(
-            TextBundle::from_section(
-                "INVENTARY @ 2",
-                TextStyle {
-                    font: font.0.clone_weak(),
-                    font_size: 30.0,
-                    color: Color::GREEN,
-                },
-            )
-            .with_style(Style {
-                align_self: AlignSelf::Center,
-                position_type: PositionType::Relative,
-                position: UiRect {
-                    bottom: Val::Px(20.0), // 10 = Top
+        cmd.spawn_bundle(NodeBundle {
+            color: Color::NONE.into(),
+            style: Style {
+                size: FULL_SIZE,
+                flex_direction: FlexDirection::Row,
+                margin: UiRect {
+                    top: Val::Px(10.0),
                     ..default()
                 },
                 ..default()
-            }),
-        );
+            },
+            ..default()
+        })
+        .with_children(|cmd| {
+            cmd.spawn_bundle(NodeBundle {
+                color: Color::NONE.into(),
+                style: Style {
+                    size: FULL_SIZE,
+                    flex_direction: FlexDirection::ColumnReverse,
+                    align_items: AlignItems::Stretch,
+                    ..default()
+                },
+                ..default()
+            })
+            .with_children(|cmd| {
+                cmd.spawn_bundle(
+                    TextBundle::from_section(
+                        "DEMON'S",
+                        TextStyle {
+                            font: font.0.clone_weak(),
+                            font_size: 20.0,
+                            color: Color::BLUE,
+                        },
+                    )
+                    .with_style(Style {
+                        align_self: AlignSelf::Center,
+                        margin: UiRect {
+                            top: Val::Px(10.0),
+                            ..default()
+                        },
+                        ..default()
+                    }),
+                );
+
+                cmd.spawn_bundle(NodeBundle {
+                    color: Color::NONE.into(),
+                    style: Style {
+                        size: FULL_SIZE,
+                        flex_direction: FlexDirection::Row,
+                        ..default()
+                    },
+                    ..default()
+                });
+            });
+
+            cmd.spawn_bundle(NodeBundle {
+                color: Color::NONE.into(),
+                style: Style {
+                    size: FULL_SIZE,
+                    flex_direction: FlexDirection::ColumnReverse,
+                    align_items: AlignItems::Stretch,
+                    ..default()
+                },
+                ..default()
+            })
+            .insert(StorageInventoryNode)
+            .with_children(|cmd| {
+                cmd.spawn_bundle(
+                    TextBundle::from_section(
+                        "STORAGE",
+                        TextStyle {
+                            font: font.0.clone_weak(),
+                            font_size: 20.0,
+                            color: Color::BLUE,
+                        },
+                    )
+                    .with_style(Style {
+                        align_self: AlignSelf::Center,
+                        margin: UiRect {
+                            top: Val::Px(10.0),
+                            ..default()
+                        },
+                        ..default()
+                    }),
+                );
+
+                cmd.spawn_bundle(NodeBundle {
+                    color: Color::NONE.into(),
+                    style: Style {
+                        size: FULL_SIZE,
+                        flex_direction: FlexDirection::Row,
+                        ..default()
+                    },
+                    ..default()
+                });
+            });
+        });
     });
+}
+
+fn toggle_storage_menu(
+    mut query: Query<&mut Style, With<StorageInventoryNode>>,
+    keys: Res<Input<KeyCode>>,
+) {
+    use Display::*;
+
+    if keys.just_pressed(KeyCode::Q) {
+        let mut node = query.single_mut();
+
+        node.display = match node.display {
+            Flex => None,
+            None => Flex,
+        };
+    }
 }
 
 fn show_ui(mut query: Query<&mut Visibility, With<ItemsMenu>>) {
