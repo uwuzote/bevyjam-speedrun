@@ -50,7 +50,7 @@ pub struct DemonBundle {
 
 impl DemonBundle {
     pub fn new(
-        (atlas, idx, coords): (&Res<TileSheet>, usize, [f32; 2]),
+        (coords, idx, atlas): ([f32; 2], usize, &Res<TileSheet>),
         inventory: DemonInventory,
     ) -> Self {
         DemonBundle {

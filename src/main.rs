@@ -162,12 +162,17 @@ fn spawn_koci4(
     anim_query: Query<Entity, With<Animator>>,
 ) {
     let e1 = cmd
-        .spawn_bundle(demon_sprite_bundle([0.0, 0.0], 0, &tiles))
+        .spawn_bundle(DemonBundle::new(
+            ([0.0, 0.0], 0, &tiles),
+            DemonInventory::new(1, &[], &[(Item::Sulfur, 255)]).unwrap(),
+        ))
         .insert(ActiveDemon)
-        // .insert(DemonInventory::One([Item::Sulfur; 3], Box::new(Storage::empty())))
         .id();
     let e2 = cmd
-        .spawn_bundle(demon_sprite_bundle([-1.0, 0.0], 1, &tiles))
+        .spawn_bundle(DemonBundle::new(
+            ([-1.0, 0.0], 1, &tiles),
+            DemonInventory::new(1, &[], &[]).unwrap(),
+        ))
         .id();
 
     cmd.entity(anim_query.single()).push_children(&[e1, e2]);
@@ -186,21 +191,27 @@ fn change_active_demon(
         return;
     };
 
-    let mut query_iter = (&mut query).into_iter();
+    assert!(!query.is_empty(), "NO DEMONS TO SWITCH ON");
+
+    let mut query_iter = query.iter_mut();
+    let mut first_elem = None;
 
     while let Some((e, demon)) = query_iter.next() {
+        if first_elem.is_none() {
+            first_elem = Some(e);
+        }
+
         if demon.is_some() {
             cmd.entity(e).remove::<ActiveDemon>();
 
             break;
-        };
+        }
     }
 
     if let Some((e, _)) = query_iter.next() {
         cmd.entity(e).insert(ActiveDemon);
     } else {
-        cmd.entity((&mut query).into_iter().next().unwrap().0)
-            .insert(ActiveDemon);
+        cmd.entity(first_elem.unwrap()).insert(ActiveDemon);
     };
 }
 
