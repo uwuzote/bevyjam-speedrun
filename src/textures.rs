@@ -1,4 +1,4 @@
-use crate::consts::{ITEM_SIZE, TILE_SIZE};
+use crate::consts::{ITEM_SIZE, TILE_SIZE, DEMON_SIZE};
 use bevy::prelude::*;
 
 #[derive(Clone, Eq, PartialEq)]
@@ -6,6 +6,9 @@ pub struct TileSheet(pub Handle<TextureAtlas>);
 
 #[derive(Clone, Eq, PartialEq)]
 pub struct ItemSheet(pub Handle<TextureAtlas>);
+
+#[derive(Clone, Eq, PartialEq)]
+pub struct DemonSheet(pub Handle<TextureAtlas>);
 
 #[inline]
 fn textures_loader(
@@ -46,6 +49,18 @@ impl FromWorld for ItemSheet {
             "items.png",
             [ITEM_SIZE, ITEM_SIZE],
             [8, 4],
+            world,
+        ))
+    }
+}
+
+impl FromWorld for DemonSheet {
+    #[inline]
+    fn from_world(world: &mut World) -> Self {
+        DemonSheet(textures_loader(
+            "demons.png",
+            [DEMON_SIZE, DEMON_SIZE],
+            [8, 1],
             world,
         ))
     }

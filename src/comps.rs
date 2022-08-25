@@ -17,3 +17,9 @@ pub struct UiRoot;
 
 #[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UiStorageSection;
+
+#[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct UiDemonInvNode;
+
+#[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct UiStorageInvNode;

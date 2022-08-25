@@ -55,6 +55,7 @@ fn main() {
         // Setup
         .init_resource::<TileSheet>()
         .init_resource::<ItemSheet>()
+        .init_resource::<DemonSheet>()
         .init_resource::<FontHandle>()
         .add_state(GameState::Game)
         .add_startup_system_set_to_stage(
@@ -93,7 +94,7 @@ fn animator_animation(mut query: Query<&mut Transform, With<Animator>>, time: Re
     let mut anim = query.single_mut();
     let smth = (time.seconds_since_startup() as f32).sin();
 
-    anim.translation = Vec3::new(0.0, smth * TILE_SCALE / 6.0, 0.0);
+    anim.translation = Vec3::new(0.0, smth * STEP_SIZE / 6.0, 0.0);
 }
 
 fn spawn_camera(mut cmd: Commands) {
@@ -176,7 +177,8 @@ fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
                         },
                         ..default()
                     }),
-                );
+                )
+                .insert(UiDemonInvNode);
 
                 cmd.spawn_bundle(NodeBundle {
                     color: Color::NONE.into(),
@@ -218,7 +220,8 @@ fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
                         },
                         ..default()
                     }),
-                );
+                )
+                .insert(UiStorageInvNode);
 
                 cmd.spawn_bundle(NodeBundle {
                     color: Color::NONE.into(),
@@ -278,27 +281,26 @@ fn toggle_menu(keys: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>) {
 fn spawn_koci4(
     mut cmd: Commands,
     tiles: Res<TileSheet>,
+    demons: Res<DemonSheet>,
     anim_query: Query<Entity, With<Animator>>,
 ) {
     let e1 = cmd
         .spawn_bundle(DemonBundle::new(
-            ([0.0, 0.0], 0, &tiles),
+            ([0.0, 0.0], 0, &demons),
             DemonInventory::new(1, &[], &[(Item::Sulfur, 255)]).unwrap(),
         ))
         .insert(ActiveDemon)
         .id();
     let e2 = cmd
         .spawn_bundle(DemonBundle::new(
-            ([-1.0, 0.0], 1, &tiles),
+            ([-1.0, 0.0], 0, &demons),
             DemonInventory::new(1, &[], &[]).unwrap(),
         ))
         .id();
 
     cmd.entity(anim_query.single()).push_children(&[e1, e2]);
 
-    cmd.spawn_bundle(tile_sprite_bundle([1.0, 1.0], 1, &tiles));
-    cmd.spawn_bundle(tile_sprite_bundle([0.0, 1.0], 2, &tiles));
-    cmd.spawn_bundle(tile_sprite_bundle([1.0, 0.0], 2, &tiles));
+    cmd.spawn_bundle(tile_sprite_bundle([1.0, 1.0], 2, &tiles));
 }
 
 fn change_active_demon(
@@ -341,19 +343,19 @@ fn move_active_demon(
     let mut active = query.single_mut();
 
     if keys.just_pressed(KeyCode::D) {
-        active.translation += Vec3::new(TILE_SCALE, 0.0, 0.0);
+        active.translation += Vec3::new(STEP_SIZE, 0.0, 0.0);
     };
 
     if keys.just_pressed(KeyCode::A) {
-        active.translation += Vec3::new(-TILE_SCALE, 0.0, 0.0);
+        active.translation += Vec3::new(-STEP_SIZE, 0.0, 0.0);
     };
 
     if keys.just_pressed(KeyCode::W) {
-        active.translation += Vec3::new(0.0, TILE_SCALE, 0.0);
+        active.translation += Vec3::new(0.0, STEP_SIZE, 0.0);
     };
 
     if keys.just_pressed(KeyCode::S) {
-        active.translation += Vec3::new(0.0, -TILE_SCALE, 0.0);
+        active.translation += Vec3::new(0.0, -STEP_SIZE, 0.0);
     };
 }
 
