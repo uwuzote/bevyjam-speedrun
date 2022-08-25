@@ -336,27 +336,54 @@ fn change_active_demon(
     };
 }
 
+fn movement_check<'a>(newpos: Vec3, all: impl Iterator<Item = &'a Transform>) -> bool {
+    for this in all {
+        if newpos == this.translation {
+            return false;
+        }
+    }
+
+    true
+}
+
 fn move_active_demon(
-    mut query: Query<&mut Transform, With<ActiveDemon>>,
+    mut active: Query<&mut Transform, With<ActiveDemon>>,
+    demons: Query<&Transform, (With<Demon>, Without<ActiveDemon>)>,
     keys: Res<Input<KeyCode>>,
 ) {
-    let mut active = query.single_mut();
+    let mut active = active.single_mut();
 
     if keys.just_pressed(KeyCode::D) {
-        active.translation += Vec3::new(STEP_SIZE, 0.0, 0.0);
-    };
+        let newpos = active.translation + Vec3::new(STEP_SIZE, 0.0, 0.0);
+
+        if movement_check(newpos, demons.iter()) {
+            active.translation = newpos;
+        }
+    }
 
     if keys.just_pressed(KeyCode::A) {
-        active.translation += Vec3::new(-STEP_SIZE, 0.0, 0.0);
-    };
+        let newpos = active.translation + Vec3::new(-STEP_SIZE, 0.0, 0.0);
+
+        if movement_check(newpos, demons.iter()) {
+            active.translation = newpos;
+        }
+    }
 
     if keys.just_pressed(KeyCode::W) {
-        active.translation += Vec3::new(0.0, STEP_SIZE, 0.0);
-    };
+        let newpos = active.translation + Vec3::new(0.0, STEP_SIZE, 0.0);
+
+        if movement_check(newpos, demons.iter()) {
+            active.translation = newpos;
+        }
+    }
 
     if keys.just_pressed(KeyCode::S) {
-        active.translation += Vec3::new(0.0, -STEP_SIZE, 0.0);
-    };
+        let newpos = active.translation + Vec3::new(0.0, -STEP_SIZE, 0.0);
+
+        if movement_check(newpos, demons.iter()) {
+            active.translation = newpos;
+        }
+    }
 }
 
 // fn animate_sprite(
