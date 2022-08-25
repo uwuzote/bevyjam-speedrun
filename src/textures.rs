@@ -1,4 +1,4 @@
-use crate::consts::{ITEM_SIZE, TILE_SIZE, DEMON_SIZE};
+use crate::consts::{DEMON_SIZE, ITEM_SIZE, TILE_SIZE};
 use bevy::prelude::*;
 
 #[derive(Clone, Eq, PartialEq)]
@@ -25,9 +25,7 @@ fn textures_loader(
 
     let mut texture_atlases = world.get_resource_mut::<Assets<TextureAtlas>>().unwrap();
 
-    let texture_atlas_handle = texture_atlases.add(texture_atlas);
-
-    texture_atlas_handle
+    texture_atlases.add(texture_atlas)
 }
 
 impl FromWorld for TileSheet {

@@ -1,6 +1,6 @@
 use crate::comps::Demon;
-use crate::items::DemonInventory;
 use crate::consts::*;
+use crate::items::DemonInventory;
 use crate::textures::*;
 use bevy::prelude::*;
 

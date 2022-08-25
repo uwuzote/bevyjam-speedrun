@@ -7,8 +7,9 @@ pub const MAX_STORAGE: usize = 64;
 #[repr(u8)]
 pub enum Item {
     #[default]
-    Nothing = 0,
-    Hellfire,
+    Nothing = 31,
+
+    Hellfire = 0,
     InfernoFlames,
     Pebbles,
     Sulfur,
@@ -34,7 +35,7 @@ impl Storage {
 
         let mut this = Self::with_cap(cap);
 
-        for (i, item) in arr.into_iter().enumerate() {
+        for (i, item) in arr.iter().enumerate() {
             this.storage[i] = *item;
         }
 
