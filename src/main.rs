@@ -102,7 +102,7 @@ fn spawn_camera(mut cmd: Commands) {
 
 fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
     cmd.spawn_bundle(NodeBundle {
-        color: Color::rgba(0.1, 0.5, 0.2, 0.2).into(),
+        color: Color::rgba(0.15, 0.4, 0.3, 0.25).into(),
         style: Style {
             size: FULL_SIZE,
             // justify_content: JustifyContent::SpaceBetween,
@@ -113,7 +113,7 @@ fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
         },
         ..default()
     })
-    .insert(ItemsMenu)
+    .insert(UiRoot)
     .with_children(|cmd| {
         cmd.spawn_bundle(
             TextBundle::from_section(
@@ -199,7 +199,7 @@ fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
                 },
                 ..default()
             })
-            .insert(StorageInventoryNode)
+            .insert(UiStorageSection)
             .with_children(|cmd| {
                 cmd.spawn_bundle(
                     TextBundle::from_section(
@@ -235,7 +235,7 @@ fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
 }
 
 fn toggle_storage_menu(
-    mut query: Query<&mut Style, With<StorageInventoryNode>>,
+    mut query: Query<&mut Style, With<UiStorageSection>>,
     keys: Res<Input<KeyCode>>,
 ) {
     use Display::*;
@@ -250,11 +250,11 @@ fn toggle_storage_menu(
     }
 }
 
-fn show_ui(mut query: Query<&mut Visibility, With<ItemsMenu>>) {
+fn show_ui(mut query: Query<&mut Visibility, With<UiRoot>>) {
     query.single_mut().is_visible = true;
 }
 
-fn hide_ui(mut query: Query<&mut Visibility, With<ItemsMenu>>) {
+fn hide_ui(mut query: Query<&mut Visibility, With<UiRoot>>) {
     query.single_mut().is_visible = false;
 }
 

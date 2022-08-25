@@ -10,10 +10,10 @@ pub struct Demon;
 pub struct ActiveDemon;
 
 #[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ItemsMenu;
-
-#[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Animator;
 
 #[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct StorageInventoryNode;
+pub struct UiRoot;
+
+#[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct UiStorageSection;
