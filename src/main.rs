@@ -24,21 +24,19 @@ pub enum GameState {
     Items,
 }
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash, StageLabel)]
+pub enum SpawningStage {
+    Animator,
+    Koci4,
+    Highlighter,
+}
+
 #[derive(Component)]
 #[allow(clippy::upper_case_acronyms)]
 struct DEBUG(&'static str);
 
 #[allow(non_snake_case)]
-fn DEBUG_SYSTEM(query: Query<(&DEBUG, &GlobalTransform, &ComputedVisibility)>) {
-    for (DEBUG(name), trans, vis) in &query {
-        eprintln!(
-            "{:?}: vis = {} at {}",
-            name,
-            vis.is_visible(),
-            trans.translation()
-        );
-    }
-}
+fn DEBUG_SYSTEM() {}
 
 fn main() {
     #[cfg(not(target_family = "wasm"))]
@@ -61,21 +59,33 @@ fn main() {
         .init_resource::<DemonSheet>()
         .init_resource::<FontHandle>()
         .add_state(GameState::Game)
-        .add_startup_system_set_to_stage(
-            StartupStage::PreStartup,
-            SystemSet::new()
-                .with_system(spawn_animator)
-                .with_system(draw_ui),
+        // Startup
+        .add_startup_stage_before(
+            StartupStage::Startup,
+            SpawningStage::Animator,
+            SystemStage::single(spawn_animator),
+        )
+        .add_startup_stage_after(
+            SpawningStage::Animator,
+            SpawningStage::Koci4,
+            SystemStage::single(spawn_koci4),
+        )
+        .add_startup_stage_after(
+            SpawningStage::Koci4,
+            SpawningStage::Highlighter,
+            SystemStage::single(spawn_highlighter),
         )
         .add_startup_system(spawn_camera)
-        .add_startup_system(spawn_koci4)
+        .add_startup_system(draw_ui)
         // Core
         .add_system(toggle_menu)
         .add_system(animator_animation)
+        .add_system(highlighter_animation)
         .add_system_set(
             SystemSet::on_update(GameState::Game)
                 .with_system(change_active_demon)
-                .with_system(move_active_demon.after(change_active_demon)),
+                .with_system(move_active_demon.after(change_active_demon))
+                .with_system(update_highlighter.after(move_active_demon)),
         )
         .add_system_set(
             SystemSet::on_update(GameState::Items)
@@ -86,12 +96,12 @@ fn main() {
         .add_system_set(
             SystemSet::on_enter(GameState::Items)
                 .with_system(show_ui)
-                .with_system(spawn_inventory),
+                .with_system(spawn_inventory.before(show_ui)),
         )
         .add_system_set(
             SystemSet::on_enter(GameState::Game)
                 .with_system(hide_ui)
-                .with_system(despawn_inventory),
+                .with_system(despawn_inventory.after(hide_ui)),
         )
         .run();
 }

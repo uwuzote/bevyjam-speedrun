@@ -13,6 +13,9 @@ pub struct ActiveDemon;
 pub struct Animator;
 
 #[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Highlighter;
+
+#[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct UiRoot;
 
 #[derive(Clone, Copy, Component, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]

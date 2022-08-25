@@ -13,5 +13,7 @@ pub const DEMON_SCALE: f32 = STEP_SIZE / DEMON_SIZE;
 
 pub const TILE_Z_POS: f32 = 0.0;
 pub const DEMON_Z_POS: f32 = 1.0;
+pub const HIGHLIGHTER_Z_POS: f32 = DEMON_Z_POS - 0.1;
 
 pub const CLEAR_COLOR: ClearColor = ClearColor(Color::rgb(0.4, 0.0, 0.0));
+pub const DEMON_SHADE_ADDER: usize = 4;

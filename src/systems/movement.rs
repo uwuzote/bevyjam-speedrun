@@ -37,11 +37,13 @@ pub fn change_active_demon(
         }
     }
 
-    if let Some((e, _)) = query_iter.next() {
-        cmd.entity(e).insert(ActiveDemon);
+    let target = if let Some((e, _)) = query_iter.next() {
+        e
     } else {
-        cmd.entity(first_elem.unwrap()).insert(ActiveDemon);
+        first_elem.unwrap()
     };
+
+    cmd.entity(target).insert(ActiveDemon);
 }
 
 pub fn move_active_demon(

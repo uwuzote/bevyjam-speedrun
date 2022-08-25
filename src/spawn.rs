@@ -40,6 +40,18 @@ pub fn demon_sprite_bundle(
     }
 }
 
+pub fn highlighter_sprite_bundle(idx: usize, atlas: &Res<DemonSheet>) -> SpriteSheetBundle {
+    SpriteSheetBundle {
+        texture_atlas: atlas.0.clone_weak(),
+        transform: Transform::identity().with_translation(Vec3::new(0.0, 0.0, HIGHLIGHTER_Z_POS)),
+        sprite: TextureAtlasSprite {
+            index: idx,
+            ..default()
+        },
+        ..default()
+    }
+}
+
 #[derive(Clone, Bundle)]
 pub struct DemonBundle {
     pub demon: Demon,
