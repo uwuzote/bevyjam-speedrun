@@ -1,10 +1,7 @@
 use crate::*;
 use bevy::prelude::*;
 
-pub fn tile_sprite_bundle(
-    [x, y]: [f32; 2],
-    texture: Handle<Image>,
-) -> SpriteBundle {
+pub fn tile_sprite_bundle([x, y]: [f32; 2], texture: Handle<Image>) -> SpriteBundle {
     SpriteBundle {
         transform: Transform::identity()
             .with_translation(Vec3::new(STEP_SIZE * x, STEP_SIZE * y, TILE_Z_POS))
@@ -14,10 +11,7 @@ pub fn tile_sprite_bundle(
     }
 }
 
-pub fn demon_sprite_bundle(
-    [x, y]: [f32; 2],
-    texture: Handle<Image>,
-) -> SpriteBundle {
+pub fn demon_sprite_bundle([x, y]: [f32; 2], texture: Handle<Image>) -> SpriteBundle {
     SpriteBundle {
         transform: Transform::identity()
             .with_translation(Vec3::new(STEP_SIZE * x, STEP_SIZE * y, DEMON_Z_POS))
@@ -27,10 +21,7 @@ pub fn demon_sprite_bundle(
     }
 }
 
-pub fn highlighter_sprite_bundle(
-    [x, y]: [f32; 2],
-    texture: Handle<Image>,
-) -> SpriteBundle {
+pub fn highlighter_sprite_bundle([x, y]: [f32; 2], texture: Handle<Image>) -> SpriteBundle {
     SpriteBundle {
         transform: Transform::identity()
             .with_translation(Vec3::new(STEP_SIZE * x, STEP_SIZE * y, HIGHLIGHTER_Z_POS))
@@ -73,9 +64,7 @@ pub struct HighlighterBundle {
 }
 
 impl HighlighterBundle {
-    pub fn new(
-        (coords, texture): ([f32; 2], Handle<Image>),
-    ) -> Self {
+    pub fn new((coords, texture): ([f32; 2], Handle<Image>)) -> Self {
         HighlighterBundle {
             sprite: highlighter_sprite_bundle(coords, texture),
             high: Highlighter,

@@ -1,17 +1,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![allow(clippy::type_complexity)]
 
+pub mod assets;
 pub mod comps;
 pub mod consts;
-// pub mod font_loader;
 pub mod items;
 pub mod spawn;
 pub mod systems;
-// pub mod textures;
-pub mod assets;
 
 use crate::systems::*;
-pub use crate::{comps::*, consts::*, items::*, spawn::*, assets::*};
+pub use crate::{assets::*, comps::*, consts::*, items::*, spawn::*};
 use bevy::{app::AppExit, prelude::*, render::texture::ImageSettings, window::WindowMode};
 
 pub const FULL_SIZE: Size<Val> = Size {
@@ -29,7 +27,7 @@ pub enum GameState {
 #[derive(Debug, Clone, Eq, PartialEq, Hash, StageLabel)]
 pub enum SpecialStartupStage {
     Resources,
-    Spawns
+    Spawns,
 }
 
 #[derive(Component)]
@@ -60,21 +58,17 @@ fn main() {
         .add_state(GameState::Game)
         .add_startup_system_to_stage(
             StartupStage::PreStartup,
-            load_assets.exclusive_system().at_end()
+            load_assets.exclusive_system().at_end(),
         )
         .add_startup_stage_after(
             StartupStage::PreStartup,
             SpecialStartupStage::Resources,
-            SystemStage::single(
-                load_assets.exclusive_system()
-            )
+            SystemStage::single(load_assets.exclusive_system()),
         )
         .add_startup_stage_after(
             SpecialStartupStage::Resources,
             SpecialStartupStage::Spawns,
-            SystemStage::single(
-                startup_spawns.exclusive_system()
-            )
+            SystemStage::single(startup_spawns.exclusive_system()),
         )
         .add_startup_system(spawn_camera)
         .add_startup_system(draw_ui)

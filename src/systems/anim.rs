@@ -41,7 +41,10 @@ pub fn highlighter_animation(mut high: Query<&mut Transform, With<Highlighter>>,
 }
 
 pub fn update_highlighter(
-    mut high: Query<(&mut Transform, &mut Handle<Image>), (With<Highlighter>, Without<ActiveDemon>)>,
+    mut high: Query<
+        (&mut Transform, &mut Handle<Image>),
+        (With<Highlighter>, Without<ActiveDemon>),
+    >,
     active: Query<(&Transform, &HighlighterTexture), (With<ActiveDemon>, Without<Highlighter>)>,
 ) {
     let mut high = high.single_mut();
