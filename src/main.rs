@@ -43,6 +43,10 @@ fn main() {
     #[cfg(not(target_family = "wasm"))]
     std::env::set_var("WGPU_BACKEND", "Vulkan");
 
+    // When building for WASM, print panics to the browser console
+    #[cfg(target_arch = "wasm32")]
+    console_error_panic_hook::set_once();
+
     App::new()
         // .add_system(DEBUG_SYSTEM)
         // Settings

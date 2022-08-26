@@ -8,6 +8,7 @@ edition = "2021"
 [features]
 
 [dependencies]
+console_error_panic_hook = "0.1"
 
 [dependencies.bevy]
 version = "0.8.0"
