@@ -1,7 +1,37 @@
 use crate::*;
 use bevy::prelude::*;
 
-pub fn spawn_inventory() {}
+fn get_current_chest<'c, 'any>(
+    active: &Vec3,
+    query: impl Iterator<Item = (&'c Container, &'any Transform)>,
+) -> Option<&'c Container> {
+    for (con, trans) in query {
+        if trans.translation == *active {
+            return Some(con);
+        }
+    }
+
+    None
+}
+
+pub fn spawn_inventory(
+    mut cmd: Commands,
+    active: Query<(&DemonInventory, &Transform), With<ActiveDemon>>,
+    chests: Query<(&Container, &Transform)>,
+    demon_inv_node: Query<Entity, With<UiDemonInvNode>>,
+    chest_inv_node: Query<Entity, With<UiStorageInvNode>>,
+) {
+    let (demon_inv, demon_trans) = active.single();
+    let (demon_inv_node, chest_inv_node) = (demon_inv_node.single(), chest_inv_node.single());
+    let opt_chest = get_current_chest(&demon_trans.translation, chests.iter());
+
+    cmd.entity(demon_inv_node).with_children(|cmd| {
+        for (item, count) in demon_inv.inventory.view() {
+            // eprintln!("{:?}", (item, count));
+            // cmd.spawn_bundle()
+        }
+    });
+}
 pub fn despawn_inventory() {}
 
 pub fn toggle_menu(keys: Res<Input<KeyCode>>, mut state: ResMut<State<GameState>>) {
@@ -39,7 +69,7 @@ pub fn toggle_storage_menu(
     }
 }
 
-pub fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
+pub fn draw_ui(mut cmd: Commands, font: Res<FontGameCommands>) {
     cmd.spawn_bundle(NodeBundle {
         color: Color::rgba(0.15, 0.4, 0.3, 0.25).into(),
         style: Style {
@@ -58,7 +88,7 @@ pub fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
             TextBundle::from_section(
                 "INVENTORY",
                 TextStyle {
-                    font: font.0.clone_weak(),
+                    font: font.clone(),
                     font_size: 40.0,
                     color: Color::WHITE,
                 },
@@ -102,7 +132,7 @@ pub fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
                     TextBundle::from_section(
                         "DEMON'S",
                         TextStyle {
-                            font: font.0.clone_weak(),
+                            font: font.clone(),
                             font_size: 20.0,
                             color: Color::BLUE,
                         },
@@ -145,7 +175,7 @@ pub fn draw_ui(mut cmd: Commands, font: Res<FontHandle>) {
                     TextBundle::from_section(
                         "STORAGE",
                         TextStyle {
-                            font: font.0.clone_weak(),
+                            font: font.clone(),
                             font_size: 20.0,
                             color: Color::BLUE,
                         },

@@ -1,15 +1,17 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#![allow(clippy::type_complexity)]
 
 pub mod comps;
 pub mod consts;
-pub mod font_loader;
+// pub mod font_loader;
 pub mod items;
 pub mod spawn;
 pub mod systems;
-pub mod textures;
+// pub mod textures;
+pub mod assets;
 
 use crate::systems::*;
-pub use crate::{comps::*, consts::*, font_loader::*, items::*, spawn::*, textures::*};
+pub use crate::{comps::*, consts::*, items::*, spawn::*, assets::*};
 use bevy::{app::AppExit, prelude::*, render::texture::ImageSettings, window::WindowMode};
 
 pub const FULL_SIZE: Size<Val> = Size {
@@ -25,55 +27,54 @@ pub enum GameState {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, StageLabel)]
-pub enum SpawningStage {
-    Animator,
-    Koci4,
-    Highlighter,
+pub enum SpecialStartupStage {
+    Resources,
+    Spawns
 }
 
 #[derive(Component)]
 #[allow(clippy::upper_case_acronyms)]
 struct DEBUG(&'static str);
 
-#[allow(non_snake_case)]
-fn DEBUG_SYSTEM() {}
+#[allow(non_snake_case, dead_code)]
+fn DEBUG_SYSTEM(demons: Res<DemonSheet>) {
+    eprintln!("{:?}", demons);
+}
 
 fn main() {
     #[cfg(not(target_family = "wasm"))]
     std::env::set_var("WGPU_BACKEND", "Vulkan");
 
     App::new()
-        .add_system(DEBUG_SYSTEM)
+        // .add_system(DEBUG_SYSTEM)
         // Settings
         .insert_resource(ImageSettings::default_nearest()) // prevents blurry sprites
         .insert_resource(CLEAR_COLOR)
         .insert_resource(WindowDescriptor {
-            title: "<Koci4 moment>".into(),
+            title: "Koci4 combinations".into(),
             mode: WindowMode::BorderlessFullscreen,
             ..default()
         })
         .add_plugins(DefaultPlugins)
-        // Setup
-        .init_resource::<TileSheet>()
-        .init_resource::<ItemSheet>()
-        .init_resource::<DemonSheet>()
-        .init_resource::<FontHandle>()
-        .add_state(GameState::Game)
         // Startup
-        .add_startup_stage_before(
-            StartupStage::Startup,
-            SpawningStage::Animator,
-            SystemStage::single(spawn_animator),
+        .add_state(GameState::Game)
+        .add_startup_system_to_stage(
+            StartupStage::PreStartup,
+            load_assets.exclusive_system().at_end()
         )
         .add_startup_stage_after(
-            SpawningStage::Animator,
-            SpawningStage::Koci4,
-            SystemStage::single(spawn_koci4),
+            StartupStage::PreStartup,
+            SpecialStartupStage::Resources,
+            SystemStage::single(
+                load_assets.exclusive_system()
+            )
         )
         .add_startup_stage_after(
-            SpawningStage::Koci4,
-            SpawningStage::Highlighter,
-            SystemStage::single(spawn_highlighter),
+            SpecialStartupStage::Resources,
+            SpecialStartupStage::Spawns,
+            SystemStage::single(
+                startup_spawns.exclusive_system()
+            )
         )
         .add_startup_system(spawn_camera)
         .add_startup_system(draw_ui)

@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut, Index, IndexMut};
 
 pub const MAX_STORAGE: usize = 64;
 
-#[derive(Copy, Clone, Hash, Eq, PartialEq, Default)]
+#[derive(Copy, Clone, Hash, Eq, PartialEq, Default, Debug)]
 #[repr(u8)]
 pub enum Item {
     #[default]
@@ -69,6 +69,10 @@ impl Storage {
 
     pub fn clone_storage(&self) -> Box<[Cell; MAX_STORAGE]> {
         self.storage.clone()
+    }
+
+    pub fn view(&self) -> &[Cell] {
+        &self.storage[..self.cap]
     }
 }
 

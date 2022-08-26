@@ -1,28 +1,28 @@
 use crate::*;
 use bevy::prelude::*;
 
-pub fn spawn_animator(mut cmd: Commands) {
-    cmd.spawn_bundle(SpatialBundle::visible_identity())
-        .insert(Animator);
-}
+// pub fn spawn_animator(mut cmd: Commands) {
+//     cmd.spawn_bundle(SpatialBundle::visible_identity())
+//         .insert(Animator);
+// }
 
-pub fn spawn_highlighter(
-    mut cmd: Commands,
-    animator: Query<Entity, With<Animator>>,
-    active: Query<(&TextureAtlasSprite, &Transform), With<ActiveDemon>>,
-    demons: Res<DemonSheet>,
-) {
-    let (sprite, trans) = active.single();
+// pub fn spawn_highlighter(
+//     mut cmd: Commands,
+//     animator: Query<Entity, With<Animator>>,
+//     active: Query<(&TextureAtlasSprite, &Transform), With<ActiveDemon>>,
+//     asset_server: Res<AssetServer>,
+// ) {
+//     let (sprite, trans) = active.single();
 
-    cmd.entity(animator.single()).with_children(|cmd| {
-        let mut bundle = highlighter_sprite_bundle(sprite.index + DEMON_SHADE_ADDER, &demons);
+//     cmd.entity(animator.single()).with_children(|cmd| {
+//         let mut bundle = highlighter_sprite_bundle(sprite.index + DEMON_SHADE_ADDER, asset_server.load("demons.png"));
 
-        bundle.transform.translation.x = trans.translation.x;
-        bundle.transform.translation.y = trans.translation.y;
+//         bundle.transform.translation.x = trans.translation.x;
+//         bundle.transform.translation.y = trans.translation.y;
 
-        cmd.spawn_bundle(bundle).insert(Highlighter);
-    });
-}
+//         cmd.spawn_bundle(bundle).insert(Highlighter);
+//     });
+// }
 
 pub fn animator_animation(mut query: Query<&mut Transform, With<Animator>>, time: Res<Time>) {
     let mut anim = query.single_mut();
@@ -41,12 +41,14 @@ pub fn highlighter_animation(mut high: Query<&mut Transform, With<Highlighter>>,
 }
 
 pub fn update_highlighter(
-    mut high: Query<&mut Transform, (With<Highlighter>, Without<ActiveDemon>)>,
-    active: Query<&Transform, (With<ActiveDemon>, Without<Highlighter>)>,
+    mut high: Query<(&mut Transform, &mut Handle<Image>), (With<Highlighter>, Without<ActiveDemon>)>,
+    active: Query<(&Transform, &HighlighterTexture), (With<ActiveDemon>, Without<Highlighter>)>,
 ) {
     let mut high = high.single_mut();
-    let new_trans = active.single().translation;
+    let (new_trans, handle) = active.single();
 
-    high.translation.x = new_trans.x;
-    high.translation.y = new_trans.y;
+    high.0.translation.x = new_trans.translation.x;
+    high.0.translation.y = new_trans.translation.y;
+
+    *high.1 = handle.0.clone_weak();
 }
